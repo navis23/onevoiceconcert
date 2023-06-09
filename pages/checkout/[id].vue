@@ -230,7 +230,9 @@
                             <p class="text-xs ">Bu Ria 082132551265</p>
                         </div>
                         <div class="flex flex-col items-center mt-1 bg-white border-2 p-2 rounded">
-                            <p class="text-xs text-red-600 font-semibold">Tiket yang sudah dibeli / terbayar tidak bisa ditukar kembali</p>
+                            <p class="text-xs text-red-600 font-semibold pb-1">Tiket yang sudah dibeli / terbayar tidak bisa ditukar kembali</p>
+                            <p class="text-xs font-semibold">Batas Pembayaran 1 x 24 jam</p>
+                            <p class="text-xs">Apabila melebihi tenggat dinyatakan hangus, silahkan order lagi</p>
                         </div>
                         
                     </div>

@@ -69,10 +69,15 @@
                             </div>
                             <div class="flex flex-col items-center mt-1 bg-gray-800 text-gray-100 p-2 rounded">
                                 
-                                <p class="text-sm font-semibold pb-1">Penukaran tiket ke panitia pada :</p>
-                                <p class="text-sm font-semibold">Rabu, 20 Juni 2023 pukul 08.00 - 15.00</p>
-                                <p class="text-sm font-semibold pb-1">Kamis, 21 Juni 2023 pukul 08.00 - 15.00</p>
-                                <p class="text-sm font-semibold pb-1">Di Aula SMP Negeri 1 Surabaya</p>
+                                <p class="text-xs font-semibold pb-1">Penukaran tiket ke panitia pada :</p>
+                                <p class="text-xs font-semibold pb-1">21-22 Juni 2023 pukul 13.00 - 16.00</p>
+                                <p class="text-xs font-semibold pb-1">Ruang Komite SMP Negeri 1 Surabaya Jl. Pacar 4-6 Surabaya</p>
+                            </div>
+                            <div class="flex flex-col items-center mt-1 bg-gray-800 text-gray-100 p-2 rounded">
+                                
+                                <p class="text-xs pb-1">Informasi lebih lanjut hubungi CP :</p>
+                                <p class="text-xs ">Bu Lia 085336369334</p>
+                                <p class="text-xs ">Bu Ria 082132551265</p>
                             </div>
                             
                         </div>
