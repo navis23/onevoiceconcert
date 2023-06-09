@@ -1,0 +1,34 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@sidebase/nuxt-pdf": "^0.1.1",
+    "@types/node": "^18",
+    "autoprefixer": "^10.4.14",
+    "nuxt": "^3.5.2",
+    "nuxt-icon": "^0.4.1",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2"
+  },
+  "dependencies": {
+    "@emailjs/browser": "^3.11.0",
+    "@formkit/icons": "^0.17.2",
+    "@formkit/nuxt": "^0.17.2",
+    "@formkit/themes": "^0.17.2",
+    "@pinia/nuxt": "^0.4.11",
+    "@types/uuid": "^9.0.1",
+    "axios": "^1.4.0",
+    "pinia": "^2.1.3",
+    "uuid": "^9.0.0"
+  },
+  "overrides": {
+    "vue": "latest"
+  }
+}
