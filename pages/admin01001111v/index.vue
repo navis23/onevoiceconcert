@@ -349,8 +349,8 @@ useHead({
 })
 
 // default API url set
-const urlHostApi = 'http://localhost:8181/'
-const urlHostWebsite = 'http://localhost:3000/'
+const urlHostApi = 'https://onevoice-api.enterbiner.com/'
+const urlHostWebsite = 'https://onevoiceconcert.vercel.app/'
 
 // mounted first data
 onMounted( async () => {

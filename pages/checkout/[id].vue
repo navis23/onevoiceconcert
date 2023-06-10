@@ -262,7 +262,7 @@ import axios from 'axios';
 import { exportToPDF } from '#imports'
 
 // default API url set
-const urlHostApi = 'http://localhost:8181/'
+const urlHostApi = 'https://onevoice-api.enterbiner.com/'
 
 const loadingOverlay = ref(false)
 const bioValid = ref(false)
@@ -296,7 +296,7 @@ kode_key_temp.value = paramsId.toString()
 
 
 const SubtotalReg = computed(() => {
-    return countReg.value * 100000
+    return countReg.value * 125000
 })
 const SubtotalVip = computed(() => {
     return countVip.value * 150000
