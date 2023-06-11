@@ -46,11 +46,17 @@
                     <div class="md:px-4">
                         <p class="font-semibold text-lg pb-3">Pilih Tiket</p>
                         <div class="flex items-center justify-between py-3 px-4 mb-4 rounded border-2 border-gray-200 shadow-md">
+                            <!-- ticket detail -->
                             <div class="flex flex-col">
                                 <p class="font-bold text-lg uppercase">Tiket Reg</p>
-                                <p class="font-semibold text-base">IDR 125,000</p>
+                                <p class="font-semibold text-base pb-1">IDR 125,000</p>
+                                <p class="font-semibold text-xs bg-gray-800 text-gray-100 px-2 py-1 rounded text-center">Tiket Tersisa : {{ regRemaining }} tiket</p>
                             </div>
-                            <div class="flex items-center justify-evenly gap-x-3">
+                            <!-- ticket count choose -->
+                            <div v-if="regSold">
+                                <p class="font-bold text-sm bg-red-200 bg-opacity-30 text-red-600 px-2 py-1 rounded text-center uppercase">Sold Out</p>
+                            </div>
+                            <div v-if="!regSold" class="flex items-center justify-evenly gap-x-3">
                                 <button class="rounded-full" @click="minReg()">
                                     <Icon name="ph:minus-bold" class="text-2xl rounded-full font-bold bg-red-600 text-white p-1" />
                                 </button>
@@ -62,11 +68,17 @@
                         </div>
 
                         <div class="flex items-center justify-between py-3 px-4 mb-4 rounded border-2 border-gray-200 shadow-md">
+                            <!-- ticket detail -->
                             <div class="flex flex-col">
                                 <p class="font-bold text-lg uppercase">Tiket VIP</p>
-                                <p class="font-semibold text-base">IDR 150,000</p>
+                                <p class="font-semibold text-base pb-1">IDR 150,000</p>
+                                <p class="font-semibold text-xs bg-gray-800 text-gray-100 px-2 py-1 rounded text-center">Tiket Tersisa : {{ vipRemaining }} tiket</p>
                             </div>
-                            <div class="flex items-center justify-evenly gap-x-3">
+                            <!-- ticket count choose -->
+                            <div v-if="vipSold">
+                                <p class="font-bold text-sm bg-red-200 bg-opacity-30 text-red-600 px-2 py-1 rounded text-center uppercase">Sold Out</p>
+                            </div>
+                            <div v-if="!vipSold" class="flex items-center justify-evenly gap-x-3">
                                 <button class="rounded-full" @click="minVip()">
                                     <Icon name="ph:minus-bold" class="text-2xl rounded-full font-bold bg-red-600 text-white p-1" />
                                 </button>
@@ -165,7 +177,7 @@
                             <p class="text-xs font-semibold uppercase">
                             Kode Order : {{ yourCode }}
                             </p>
-                            <span class="text-sm py-1 px-3 font-bold bg-red-200 bg-opacity-30 text-red-600 rounded-md uppercase">
+                            <span class="text-xs py-1 px-2 font-bold bg-red-200 bg-opacity-30 text-red-600 rounded-md uppercase">
                                 unpaid
                             </span>
                         </div>
@@ -220,14 +232,14 @@
                         </div>
     
                         <div class="flex flex-col items-center mt-1 bg-white border-2 p-2 rounded">
-                            <p class="text-sm font-bold pb-2">Dear Dream Concert One Voice Spensabaya</p>
+                            <p class="text-xs font-bold pb-1">Dear Dream Concert One Voice Spensabaya</p>
                             <p class="text-xs ">Pembayaran<span class="text-white">_</span>via transfer rekening ke :</p>
                             <p class="text-xs font-bold">No Rek 5725002308</p>
-                            <p class="text-xs pb-2">BCA a/n Nugraheni Widiyatni</p>
-                            <p class="text-xs pb-2">Tulis di berita transfer : <span class="font-bold">{{ yourCode }}</span></p>
-                            <p class="text-xs ">Bukti transfer & invoice order harap dikirim via Chat WA ke</p>
-                            <p class="text-xs ">Bu Lia 085336369334</p>
-                            <p class="text-xs ">Bu Ria 082132551265</p>
+                            <p class="text-xs">BCA a/n Nugraheni Widiyatni</p>
+                            <p class="text-xs pb-1">Tulis di berita transfer : <span class="font-bold">{{ yourCode }}</span></p>
+                            <p class="text-xs">Bukti transfer & invoice order harap dikirim via Chat WA ke</p>
+                            <p class="text-xs">Bu Lia 085336369334</p>
+                            <p class="text-xs">Bu Ria 082132551265</p>
                         </div>
                         <div class="flex flex-col items-center mt-1 bg-white border-2 p-2 rounded">
                             <p class="text-xs text-red-600 font-semibold pb-1">Tiket yang sudah dibeli / terbayar tidak bisa ditukar kembali</p>
@@ -272,6 +284,13 @@ const afterOrder = ref(false)
 const orderNotif = ref(false)
 const pdfSection = ref<HTMLElement | null>(null)
 
+const ticketRegTotal = ref(0)
+const ticketVipTotal = ref(0)
+const regRemaining = ref(0)
+const vipRemaining = ref(0)
+const regSold = ref(false)
+const vipSold = ref(false)
+
 // ref data from pinia store in composabl
 const storeTicket = useTicketStore()
 
@@ -293,6 +312,57 @@ const route = useRoute()
 
 const paramsId = route.params.id
 kode_key_temp.value = paramsId.toString()
+
+// mounted first data
+onMounted( async () => {
+    loadingOverlay.value = true
+    await fecthTicket()
+})
+
+// fetching data
+const fecthTicket = async () => {
+    await axios.post( `${urlHostApi}tiket-api/api/ticket/alldata`, {}, {
+    headers: {
+            "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*"
+    }
+    })
+    .then( res => {
+        tickets.value = res.data.data
+        const watchTicketReg = tickets.value.map(f => f.tiket_reg )
+        const watchTicketVip = tickets.value.map(f => f.tiket_vip )
+        let ticketRegSum = watchTicketReg.reduce((a, b) => a + b, 0)
+        let ticketVipSum = watchTicketVip.reduce((a, b) => a + b, 0)
+        ticketRegTotal.value = ticketRegSum
+        ticketVipTotal.value = ticketVipSum
+        regRemaining.value = 140 - ticketRegTotal.value
+        vipRemaining.value = 75 - ticketVipTotal.value
+
+        if( regRemaining.value <= 0 ){
+            regSold.value = true
+        }
+        if(vipRemaining.value <= 0){
+            vipSold.value = true
+        }
+
+        setTimeout(() => loadingOverlay.value = false, 500)
+        
+        // console.log('first load data',{
+        //     'per' : perPage.value,
+        //     'page' : currentPage.value,
+        //     'pages' : pages.value,
+        //     'total' : totalData.value,
+        //     'search' : searchField.value,
+        // })
+    })
+    .catch( err => {
+        console.log({
+            message : err.message || "some error while retreiving category data.",
+            msg : `error fetch products process`
+        })
+    });
+}
+
 
 
 const SubtotalReg = computed(() => {
@@ -319,7 +389,7 @@ const minReg = () => {
 }
 
 const plusReg = () => {
-    countReg.value++
+    countReg.value >= regRemaining.value ? regRemaining.value : countReg.value++
 }
 
 const minVip = () => {
@@ -331,7 +401,7 @@ const minVip = () => {
 }
 
 const plusVip = () => {
-    countVip.value++
+    countVip.value >= vipRemaining.value ? vipRemaining.value : countVip.value++
 }
 
 

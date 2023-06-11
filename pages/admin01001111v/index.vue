@@ -147,6 +147,11 @@
                                     <Icon name="ph:pencil-simple-line-bold" class="text-sm lg:text-lg" />
                                     <span>Update Order</span>
                                 </button>
+
+                                <button v-if="item.status == 'unpaid'" @click="openModalDelete(item)" class="w-36 flex items-center justify-center gap-x-1 py-3 pl-3 pr-4 text-sm font-semibold rounded-md bg-red-200 bg-opacity-30 text-red-700 hover:bg-opacity-60">
+                                    <Icon name="ph:trash-bold" class="text-sm lg:text-lg" />
+                                    <span>Batalkan Order</span>
+                                </button>
                                 
                             </div>
                         </td>
@@ -239,6 +244,56 @@
                             <button @click="updateStatusPaid()" class="flex items-center justify-center gap-x-1 rounded font-bold text-xs bg-blue-500 text-gray-100 pr-3 pl-2 py-3 uppercase">
                                 <Icon name="ph:calendar-check-bold" class="text-sm lg:text-2xl text-gray-100" />
                                 sudah terbayar
+                            </button>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- modal update -->
+        <div v-if="modalDelete" class="fixed top-0 left-0 w-full h-screen">
+            <div class="relative flex flex-col items-center justify-center" >
+                <div class="absolute -z-10 h-screen top-0 w-full bg-gray-800 rounded opacity-90" />
+                <!-- invoice section -->
+                <div class="p-2">
+                    <div class="flex flex-col justify-center items-center w-[25rem] md:w-[30rem] h-screen">
+                        <h2 class="text-3xl tracking-tight font-bold uppercase pb-2 text-center text-sky-200 drop-shadow-lg">Hapus order tiket </h2>
+                        <div class="flex flex-col items-center w-full mt-1 bg-white px-3 py-6 rounded">
+                            <div class="flex flex-col gap-y-1 pb-3">
+                                <div class="flex items-center gap-x-1">
+                                    <Icon name="ph:user-bold" class="text-sm lg:text-lg" />
+                                    <h3 class="font-bold text-base">
+                                        {{ nama }}
+                                    </h3>
+                                </div>
+                                <div class="flex items-center gap-x-1">
+                                    <Icon name="ph:phone-bold" class="text-sm lg:text-lg" />
+                                    <h3 class="font-semibold text-sm">
+                                        {{ telepon }}
+                                    </h3>
+                                </div>
+                                <div class="flex items-center gap-x-1">
+                                    <Icon name="ph:envelope-bold" class="text-sm lg:text-lg" />
+                                    <h3 class="font-semibold text-sm">
+                                        {{ email }}
+                                    </h3>
+                                </div>
+                            </div>
+                            <p class="text-sm font-bold pb-2">Apakah anda akan menghapus order tiket?</p>
+                            <p class="text-sm pb-2">Jika iya klik <span class="font-bold ">hapus order</span> untuk menghapus order tiket.</p>
+                            <p class="text-sm">Order tiket akan terhapus dan kuota tiket akan dikembalikan.</p>
+                        </div>
+                        <div class="flex gap-3 pt-6">
+                            <button @click="closeModalDelete()" class="flex items-center justify-center gap-x-1 rounded font-bold text-xs bg-gray-400 text-gray-100 pr-3 pl-2 py-3 uppercase">
+                                <Icon name="ph:arrow-bend-double-up-left-bold" class="text-sm lg:text-2xl text-gray-100" />
+                                keluar
+                            </button>
+                            <button @click="deleteUnpaid()" class="flex items-center justify-center gap-x-1 rounded font-bold text-xs bg-red-500 text-gray-100 pr-3 pl-2 py-3 uppercase">
+                                <Icon name="ph:trash-bold" class="text-sm lg:text-2xl text-gray-100" />
+                                hapus order
                             </button>
                         </div>
                         
@@ -368,6 +423,7 @@ const optionPages = ref(10);
 const numShown = ref(5)
 
 const modalUpdate = ref(false)
+const modalDelete = ref(false)
 const paidStatusCheck = ref(false)
 
 const emailSended =ref(false)
@@ -513,6 +569,14 @@ const clickPage = async (page : any, optionPages : any, search : any) => {
         modalUpdate.value = true
     }
 
+    const openModalDelete = async (item : any) => {
+        id_transaksi.value = item.id
+        nama.value = item.nama
+        email.value = item.email
+        telepon.value = item.telepon
+        modalDelete.value = true
+    }
+
     const openModalNota = async (item : any) => {
         id_transaksi.value = item.id
         kode_key_temp.value = item.kode_unik
@@ -533,6 +597,14 @@ const clickPage = async (page : any, optionPages : any, search : any) => {
         email.value = ''
         telepon.value = ''
         modalUpdate.value = false
+    }
+
+    const closeModalDelete = async () => {
+        id_transaksi.value = ''
+        nama.value = ''
+        email.value = ''
+        telepon.value = ''
+        modalDelete.value = false
     }
 
     const closeModalNota = async () => {
@@ -565,6 +637,32 @@ const clickPage = async (page : any, optionPages : any, search : any) => {
             email.value = ''
             telepon.value = ''
             modalUpdate.value = false
+        })
+        .catch( err => {
+            console.log({error : err.message, msg : `error update process`})
+            setTimeout( () => {
+                loadingOverlay.value = false
+            }, 300)
+        })
+    }
+
+    const deleteUnpaid = async() => {
+        await axios.post(`${urlHostApi}tiket-api/api/ticket/hapus`, {
+            id : id_transaksi.value
+        }, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "Access-Control-Allow-Origin": "*"
+            }
+        })
+        .then( async (res) => {
+            loadingOverlay.value = true
+            await fecthTicket()
+            id_transaksi.value = ''
+            nama.value = ''
+            email.value = ''
+            telepon.value = ''
+            setTimeout(() => {loadingOverlay.value = false, modalDelete.value = false}, 500)
         })
         .catch( err => {
             console.log({error : err.message, msg : `error update process`})
