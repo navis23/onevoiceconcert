@@ -8,10 +8,77 @@
         </div>
 
         <!-- top bar -->
-        <div class="flex items-center justify-between py-5" >
+    
+        <div class="flex flex-wrap items-center justify-between pt-5 gap-2">
+
+            <div class="flex flex-col w-full md:w-72 gap-1 items-left justify-center px-5 py-4 bg-pink-200 h-28 bg-opacity-30 rounded">
+                <p class="text-sm font-bold">Nominal Transaksi Terbayar</p>
+                <p class="text-xs font-semibold uppercase">
+                    <ClientOnly>
+                        reg total : IDR {{ nominalReg.toLocaleString() }}
+                    </ClientOnly>
+                </p>
+                <p class="text-xs font-semibold uppercase">
+                    <ClientOnly>
+                        vip total : IDR {{ nominalVip.toLocaleString() }}
+                    </ClientOnly>
+                </p>
+                <p class="text-sm font-semibold uppercase">
+                    <ClientOnly>
+                        Total all : IDR {{ nominalTotal.toLocaleString() }}
+                    </ClientOnly>
+                </p>
+            </div>
+            <div class="flex flex-col w-full md:w-72 gap-3 items-left justify-center px-5 py-4 bg-violet-200 h-28 bg-opacity-30 rounded">
+                <p class="text-sm font-bold">Status Transaksi</p>
+                <p class="text-xs font-semibold">
+                    <span class="text-xs py-1 px-2 font-bold bg-emerald-200 bg-opacity-30 text-emerald-600 rounded-md">
+                        {{ countStatusPaid }}
+                    </span> 
+                    Transaksi Terbayar / Paid
+                </p>
+                <p class="text-xs font-semibold">
+                    <span class="text-xs py-1 px-2 font-bold bg-red-200 bg-opacity-30 text-red-600 rounded-md">
+                        {{ countStatusUnpaid }}
+                    </span> 
+                    Transaksi Belum Terbayar / Unpaid
+                </p>
+            </div>
+            <div class="flex flex-col w-full md:w-72 gap-3 items-left justify-center px-5 py-4 bg-green-200 h-28 bg-opacity-30 rounded">
+                <p class="text-sm font-bold">Total Tiket Terbayar</p>
+                <p class="text-xs font-semibold uppercase">
+                    <span class="text-xs py-1 px-2 font-bold bg-sky-200 bg-opacity-30 text-sky-600 rounded-md">
+                        {{ ticketRegTotalPaid }}
+                    </span> 
+                    Reg Tiket
+                </p>
+                <p class="text-xs font-semibold uppercase">
+                    <span class="text-xs py-1 px-2 font-bold bg-sky-200 bg-opacity-30 text-sky-600 rounded-md">
+                        {{ ticketVipTotalPaid }}
+                    </span> 
+                    VIP TIket
+                </p>
+            </div>
+            <div class="flex flex-col w-full md:w-72 gap-3 items-left justify-center px-5 py-4 bg-yellow-200 h-28 bg-opacity-30 rounded">
+                <p class="text-sm font-bold">Total Tiket Terpesan</p>
+                <p class="text-xs font-semibold uppercase">
+                    <span class="text-xs py-1 px-2 font-bold bg-sky-200 bg-opacity-30 text-sky-600 rounded-md">
+                        {{ ticketRegTotal }}
+                    </span> 
+                    Reg Tiket
+                </p>
+                <p class="text-xs font-semibold uppercase">
+                    <span class="text-xs py-1 px-2 font-bold bg-sky-200 bg-opacity-30 text-sky-600 rounded-md">
+                        {{ ticketVipTotal }}
+                    </span> 
+                    VIP TIket
+                </p>
+            </div>
+        </div>
+        <div class="flex items-end justify-between py-3" >
             <div>
                 <h1 class="text-2xl font-semibold leading-relaxed text-gray-800 ">
-                    Data Order Tiket
+                    Tabel Order Tiket
                 </h1>
             </div>
         </div>
@@ -413,6 +480,17 @@ onMounted( async () => {
         await fecthTicket()
 })
 
+const ticketsAll = ref<any[]>([])
+const ticketRegTotal = ref(0)
+const ticketVipTotal = ref(0)
+const ticketRegTotalPaid = ref(0)
+const ticketVipTotalPaid = ref(0)
+const countStatusPaid = ref(0)
+const countStatusUnpaid = ref(0)
+const nominalReg = ref(0)
+const nominalVip = ref(0)
+const nominalTotal = ref(0)
+
 const loadingOverlay = ref(false)
 const searchField = ref('');
 const perPage = ref(0);
@@ -461,13 +539,14 @@ const fecthTicket = async () => {
             "Access-Control-Allow-Origin": "*"
     }
     })
-    .then( res => {
+    .then( async (res) => {
         tickets.value = res.data.data
         perPage.value = res.data.limit
         currentPage.value = parseInt(res.data.page)
         pages.value = Math.ceil(res.data.total_data/perPage.value)
         totalData.value = parseInt(res.data.total_data)
         searchField.value = res.data.search
+        await fecthAllTicket()
         setTimeout(() => loadingOverlay.value = false, 500)
         
         // console.log('first load data',{
@@ -477,6 +556,45 @@ const fecthTicket = async () => {
         //     'total' : totalData.value,
         //     'search' : searchField.value,
         // })
+    })
+    .catch( err => {
+        console.log({
+            message : err.message || "some error while retreiving category data.",
+            msg : `error fetch products process`
+        })
+    });
+}
+
+// fetching data
+const fecthAllTicket = async () => {
+    await axios.post( `${urlHostApi}tiket-api/api/ticket/alldata`, {}, {
+    headers: {
+            "Content-Type": "multipart/form-data",
+            "Access-Control-Allow-Origin": "*"
+    }
+    })
+    .then( res => {
+        ticketsAll.value = res.data.data
+        const watchTicketReg = ticketsAll.value.map(f => f.tiket_reg )
+        const watchTicketVip = ticketsAll.value.map(f => f.tiket_vip )
+        const watchTicketRegPaid = ticketsAll.value.filter(v => v.status == 'paid').map(f => f.tiket_reg )
+        const watchTicketVipPaid = ticketsAll.value.filter(v => v.status == 'paid').map(f => f.tiket_vip )
+        const watchStatusPaid = ticketsAll.value.filter(v => v.status == 'paid').length
+        const watchStatusUnpaid = ticketsAll.value.filter(v => v.status == 'unpaid').length
+        let ticketRegSum = watchTicketReg.reduce((a, b) => a + b, 0)
+        let ticketVipSum = watchTicketVip.reduce((a, b) => a + b, 0)
+        let ticketRegPaidSum = watchTicketRegPaid.reduce((a, b) => a + b, 0)
+        let ticketVipPaidSum = watchTicketVipPaid.reduce((a, b) => a + b, 0)
+        ticketRegTotal.value = ticketRegSum
+        ticketVipTotal.value = ticketVipSum
+        ticketRegTotalPaid.value = ticketRegPaidSum
+        ticketVipTotalPaid.value = ticketVipPaidSum
+        countStatusPaid.value = watchStatusPaid
+        countStatusUnpaid.value = watchStatusUnpaid
+        nominalReg.value = ticketRegPaidSum * 125000
+        nominalVip.value = ticketVipPaidSum * 150000
+        nominalTotal.value = nominalReg.value + nominalVip.value
+
     })
     .catch( err => {
         console.log({
