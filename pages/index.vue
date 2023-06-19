@@ -53,7 +53,7 @@
                             <div class="flex items-center gap-x-1 pb-3">
                                 <Icon name="ph:pause-bold" class="text-sm lg:text-xl" />
                                 <h3 class="font-semibold text-sm">
-                                    Jumat, 23 Juni 2023 23.00 WIB
+                                    Jumat, 23 Juni 2023 21.00 WIB
                                 </h3>
                             </div>
                             <div class="flex items-center gap-x-1 pb-3">
